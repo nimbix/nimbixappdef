@@ -41,9 +41,9 @@ class AppDef():
     '''
     data = OrderedDict()
 
-    def __init__(self, name, desc, author, licensed=True, machines=['*'],
-                 classifications=['Uncategorized'],
-                 vaults=['FILE', 'BLOCK', 'OBJECT'], image=None):
+    def new(self, name, desc, author, licensed=True, machines=['*'],
+            classifications=['Uncategorized'],
+            vaults=['FILE', 'BLOCK', 'OBJECT'], image=None):
         '''
         Creates a new AppDef initialized with meta data
 
@@ -78,18 +78,38 @@ class AppDef():
         self.data['classifications'] = classifications
         self.data['vault-types'] = vaults
         self.data['commands'] = OrderedDict()
-        self.data['image'] = OrderedDict()
         if image:
-            m = MimeTypes()
-            mime, other = m.guess_type(image)
-            assert(mime == 'image/png' or mime == 'image/jpg')
-            assert(os.stat(image).st_size <= 65536)
-            self.data['image']['type'] = mime
-            with open(image, 'r') as f:
-                self.data['image']['data'] = base64.encodestring(f.read())
+            self.image(image)
         else:
+            self.data['image'] = OrderedDict()
             self.data['image']['type'] = 'image/png'
             self.data['image']['data'] = ''
+
+    def load(self, filename):
+        '''
+        Creates an AppDef from an existing JSON file
+
+        Required parameters:
+            filename(string): file name to load
+        '''
+        with open(filename, 'r') as f:
+            self.data = json.load(f, object_pairs_hook=OrderedDict)
+
+    def image(self, filename):
+        '''
+        Encodes application image into AppDef
+
+        Required parameters:
+            filename(string):   image file name - must be png or jpg and <=64K
+        '''
+        m = MimeTypes()
+        mime, other = m.guess_type(filename)
+        assert(mime == 'image/png' or mime == 'image/jpeg')
+        assert(os.stat(filename).st_size <= 65536)
+        self.data['image'] = OrderedDict()
+        self.data['image']['type'] = mime
+        with open(filename, 'r') as f:
+            self.data['image']['data'] = base64.encodestring(f.read())
 
     def cmd(self, id, desc, path, interactive=True, name=None, args=[]):
         '''
