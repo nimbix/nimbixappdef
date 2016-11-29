@@ -43,7 +43,7 @@ class AppDef():
 
     def new(self, name, desc, author, licensed=True, machines=['*'],
             classifications=['Uncategorized'],
-            vaults=['FILE', 'BLOCK', 'OBJECT'], image=None):
+            vaults=['FILE', 'BLOCK', 'OBJECT'], image=None, templatefile=None):
         '''
         Creates a new AppDef initialized with meta data
 
@@ -68,19 +68,29 @@ class AppDef():
             image(string):          graphic file with icon to embed (max 64kb)
                                     default: no graphic
                                     must be either png or jpg
+            templatefile(string):   if set, load an existing JSON file as
+                                    a baseline, rather than starting with
+                                    a blank object
         '''
         assert(type(machines) == list and type(classifications) == list
                and type(vaults) == list)
+        if templatefile:
+            self.load(templatefile)
+        else:
+            self.data = OrderedDict()
+
+        if 'commands' not in self.data:
+            self.data['commands'] = OrderedDict()
+
         self.data['name'] = name
         self.data['description'] = desc
         self.data['licensed'] = licensed
         self.data['machines'] = machines
         self.data['classifications'] = classifications
         self.data['vault-types'] = vaults
-        self.data['commands'] = OrderedDict()
         if image:
             self.image(image)
-        else:
+        elif 'image' not in self.data:
             self.data['image'] = OrderedDict()
             self.data['image']['type'] = 'image/png'
             self.data['image']['data'] = ''
