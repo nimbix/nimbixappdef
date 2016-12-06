@@ -29,6 +29,43 @@
 # policies, either expressed or implied, of Nimbix, Inc.
 #
 import sys
+from argparse import ArgumentParser
+from nimbixappdef.AppDef import AppDef
 
 if __name__ == '__main__':
+    parser = ArgumentParser(usage='%(prog)s -n <NAME> -d <DESCRIPTION>' +
+                            ' -a <AUTHOR> [options] <TEMPLATE-FILE>',
+                            description='Generate AppDef from template',
+                            add_help=True)
+    parser.add_argument('-n', '--name', dest='name', required=True,
+                        help='application short name')
+    parser.add_argument('-d', '--desc', dest='desc', required=True,
+                        help='application description')
+    parser.add_argument('-a', '--author', dest='author', required=True,
+                        help='application author/vendor')
+    parser.add_argument('-i', '--image', dest='imagefile', required=False,
+                        help='image file name (.png or .jpg)', default=None)
+    parser.add_argument('-m', '--machines', dest='machines', required=False,
+                        help='comma separated list of machines/wildcards' +
+                        ' (default: *)', default='*')
+    parser.add_argument('-c', '--classifications', dest='classifications',
+                        required=False,
+                        help='comma separated list of classifications' +
+                        ' (default: Uncategorized)', default='Uncategorized')
+    parser.add_argument('-l', '--license-required', dest='notlicensed',
+                        action='store_true', required=False,
+                        help='application requires license' +
+                        ' (default: includes license)')
+    parser.add_argument('templatefile', nargs=1, metavar='TEMPLATE-FILE',
+                        help='Template file containing valid AppDef JSON')
+    options = parser.parse_args()
+
+    appdef = AppDef()
+    appdef.new(name=options.name, desc=options.desc, author=options.author,
+               licensed=(not options.notlicensed),
+               machines=options.machines.split(','),
+               classifications=options.classifications.split(','),
+               image=options.imagefile,
+               templatefile=options.templatefile[0])
+    appdef.dump(sys.stdout)
     sys.exit(0)

@@ -48,8 +48,9 @@ class AppDef():
         Creates a new AppDef initialized with meta data
 
         Required parameters:
-            name(string): the short name of the application
-            desc(string): the description of what the application does
+            name(string):   the short name of the application
+            desc(string):   the description of what the application does
+            author(string): the author or vendor name for this application
 
         Optional parameters:
             licensed(bool):         True if the application contains license
@@ -84,6 +85,7 @@ class AppDef():
 
         self.data['name'] = name
         self.data['description'] = desc
+        self.data['author'] = desc
         self.data['licensed'] = licensed
         self.data['machines'] = machines
         self.data['classifications'] = classifications
